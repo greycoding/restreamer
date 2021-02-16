@@ -58,4 +58,64 @@ router.get('/progresses', (req, res) => {
     });
 });
 
+router.post('/stopLocal', function (req, res) {
+    // update the last submitted user action & write to DB & update the data on Gui
+    require.main.require('./classes/Restreamer').updateUserAction('repeatToLocalNginx', 'stop');
+    //update the state and stop the signal
+    res.end(require.main.require('./classes/Restreamer').stopStream('repeatToLocalNginx'));
+});
+
+router.post('/startLocal', function (req, res) {
+    // update the last submitted user action & write to DB & update the data on Gui
+    require.main.require('./classes/Restreamer').updateUserAction('repeatToLocalNginx', 'start');
+    res.end(
+        require.main.require('./classes/Restreamer').startStream(
+            require.main.require('./classes/Restreamer').data.addresses.srcAddress,
+            'repeatToLocalNginx',
+            true
+        )
+    );
+});
+
+router.get('/stateLocal', function (req, res) {
+    const state = require.main.require('./classes/Restreamer').getState('repeatToLocalNginx');
+
+    res.json({
+        'state': state
+    });
+});
+
+router.post('/stopExternal', function (req, res) {
+    // update the last submitted user action & write to DB & update the data on Gui
+    require.main.require('./classes/Restreamer').updateUserAction('repeatToOptionalOutput', 'stop');
+    //update the state and stop the signal
+    res.end(require.main.require('./classes/Restreamer').stopStream('repeatToOptionalOutput'));
+});
+
+router.post('/startExternal', function (req, res) {
+    // update the last submitted user action & write to DB & update the data on Gui
+    require.main.require('./classes/Restreamer').updateUserAction('repeatToOptionalOutput', 'start');
+    res.end(
+        require.main.require('./classes/Restreamer').startStream(
+            require.main.require('./classes/Restreamer').data.addresses.optionalOutputAddress,
+            'repeatToOptionalOutput',
+            true
+        )
+    );
+});
+
+router.get('/stateExternal', function (req, res) {
+    const state = require.main.require('./classes/Restreamer').getState('repeatToOptionalOutput');
+
+    res.json({
+        'state': state
+    });
+});
+
+router.get('/fetchsnapshot', function (req, res) {
+    const snapshotPath = require.main.require('./classes/Restreamer').getSnapshotPath();
+
+    res.download(snapshotPath, 'snapshot.jpg');
+});
+
 module.exports = router;
